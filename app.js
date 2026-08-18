@@ -22,10 +22,17 @@ function scoreEmoji(score){
   return "😌";
 }
 
-function renderPins(){
-  $("#pins").innerHTML = places.map(p => `
-    <button class="pin ${scoreClass(p.score)}" style="left:${p.x}%;top:${p.y}%"
-      title="${p.name}" onclick="openPlace(${p.id})">${p.score}</button>`).join("");
+let map = L.map("map").setView([32.0853, 34.7818], 13);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap"
+}).addTo(map);
+
+let userMarker = null;
+
+function renderPins() {
+  // כרגע לא מציגים את פיני הדמו הישנים על המפה החדשה
 }
 
 function renderPlaces(){
@@ -137,6 +144,17 @@ $("#locationBtn").onclick = () => {
     ({ coords }) => {
       const latitude = coords.latitude;
       const longitude = coords.longitude;
+      map.setView([latitude, longitude], 16);
+
+if (userMarker) {
+  userMarker.setLatLng([latitude, longitude]);
+} else {
+  userMarker = L.marker([latitude, longitude])
+    .addTo(map)
+    .bindPopup("אתה כאן 📍");
+}
+
+userMarker.openPopup();
 
       localStorage.setItem(
         "vybe_location",
