@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VYBE MVP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <div class="brand">VYBE</div>
+        <div class="subtitle">See what’s happening. Right now.</div>
+      </div>
+      <button id="locationBtn" class="ghost">📍 האזור שלי</button>
+    </header>
+
+    <main>
+      <section class="hero card">
+        <div>
+          <span class="eyebrow">LIVE NEARBY</span>
+          <h1>מה ה־VYBE שלך עכשיו?</h1>
+          <p>בחר מה בא לכם לעשות וקבל מקומות שמתאימים לקבוצה, לתקציב ולמרחק.</p>
+        </div>
+        <button id="openFinder" class="primary">✨ Find my VYBE</button>
+      </section>
+
+      <section class="map card">
+        <div class="section-head">
+          <div>
+            <h2>מפה חיה</h2>
+            <p>הנקודות משתנות לפי ה־VYBE Score.</p>
+          </div>
+          <div class="legend">
+            <span>🔥 80+</span><span>⚡ 60+</span><span>😌 40+</span>
+          </div>
+        </div>
+
+        <div id="mapCanvas" class="map-canvas">
+          <div class="street street-a"></div>
+          <div class="street street-b"></div>
+          <div class="street street-c"></div>
+          <div class="water"></div>
+          <div id="pins"></div>
+        </div>
+      </section>
+
+      <section class="places-section">
+        <div class="section-head">
+          <div>
+            <h2>חם עכשיו</h2>
+            <p>דירוג דמו שמבוסס על דיווחים אחרונים, שעה ופעילות.</p>
+          </div>
+          <button id="refreshBtn" class="ghost">↻ רענון</button>
+        </div>
+        <div id="placesGrid" class="places-grid"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="home">🏠<span>בית</span></button>
+      <button class="nav-item" data-tab="explore">🗺️<span>Explore</span></button>
+      <button class="nav-item post" id="postBtn">＋</button>
+      <button class="nav-item" data-tab="saved">♡<span>שמורים</span></button>
+      <button class="nav-item" data-tab="profile">👤<span>פרופיל</span></button>
+    </nav>
+  </div>
+
+  <dialog id="finderDialog">
+    <form method="dialog" class="modal">
+      <button class="close" value="cancel" aria-label="close">×</button>
+      <span class="eyebrow">FIND MY VYBE</span>
+      <h2>מה מתאים לכם?</h2>
+
+      <label>כמה אנשים?</label>
+      <input id="people" type="range" min="1" max="10" value="4">
+      <div class="range-value"><span id="peopleValue">4</span> אנשים</div>
+
+      <label>תקציב לאדם</label>
+      <select id="budget">
+        <option value="15">עד €15</option>
+        <option value="25" selected>עד €25</option>
+        <option value="40">עד €40</option>
+        <option value="100">לא משנה</option>
+      </select>
+
+      <label>מרחק</label>
+      <select id="distance">
+        <option value="1">עד 1 ק״מ</option>
+        <option value="3" selected>עד 3 ק״מ</option>
+        <option value="10">עד 10 ק״מ</option>
+      </select>
+
+      <label>איזה וייב?</label>
+      <div class="chips" id="moodChips">
+        <button type="button" class="chip selected" data-mood="fun">כיף</button>
+        <button type="button" class="chip" data-mood="chill">רגוע</button>
+        <button type="button" class="chip" data-mood="food">אוכל</button>
+        <button type="button" class="chip" data-mood="music">מוזיקה</button>
+      </div>
+
+      <button id="findBtn" type="button" class="primary full">תמצא לי VYBE</button>
+      <div id="finderResults" class="finder-results"></div>
+    </form>
+  </dialog>
+
+  <dialog id="placeDialog">
+    <div id="placeDetails" class="modal"></div>
+  </dialog>
+
+  <dialog id="postDialog">
+    <form method="dialog" class="modal">
+      <button class="close" value="cancel">×</button>
+      <span class="eyebrow">POST A VYBE</span>
+      <h2>איך האווירה עכשיו?</h2>
+
+      <label>מקום</label>
+      <select id="postPlace"></select>
+
+      <label>בחר דירוג</label>
+      <div class="rating-grid">
+        <button type="button" class="rating" data-score="25">😴<span>Dead</span></button>
+        <button type="button" class="rating" data-score="50">😌<span>Chill</span></button>
+        <button type="button" class="rating selected" data-score="75">⚡<span>Good</span></button>
+        <button type="button" class="rating" data-score="95">🔥<span>Packed</span></button>
+      </div>
+
+      <textarea id="postText" placeholder="משפט קצר על האווירה..."></textarea>
+      <button id="submitVibe" type="button" class="primary full">פרסם VYBE</button>
+      <div id="postStatus" class="status"></div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
