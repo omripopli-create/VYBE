@@ -126,10 +126,38 @@ $("#refreshBtn").onclick = () => {
 };
 
 $("#locationBtn").onclick = () => {
-  if(!navigator.geolocation) return alert("המכשיר לא תומך במיקום.");
+  if (!navigator.geolocation) {
+    alert("המכשיר שלך לא תומך במיקום.");
+    return;
+  }
+
+  $("#locationBtn").textContent = "📍 מאתר...";
+
   navigator.geolocation.getCurrentPosition(
-    () => alert("המיקום התקבל. בגרסה אמיתית המפה תתמקד באזור שלך."),
-    () => alert("לא ניתנה הרשאת מיקום.")
+    ({ coords }) => {
+      const latitude = coords.latitude;
+      const longitude = coords.longitude;
+
+      localStorage.setItem(
+        "vybe_location",
+        JSON.stringify({ latitude, longitude })
+      );
+
+      $("#locationBtn").textContent = "📍 המיקום נמצא";
+
+      alert(
+        `המיקום נמצא ✅\n${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+      );
+    },
+    () => {
+      $("#locationBtn").textContent = "📍 האזור שלי";
+      alert("לא הצלחנו לקבל את המיקום. בדוק שאישרת הרשאת מיקום.");
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    }
   );
 };
 
