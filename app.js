@@ -1,12 +1,6 @@
 
-const places = [
-  {id:1,name:"Neon Bowling",score:88,price:18,distance:.7,mood:["fun","music"],people:"עמוס",x:72,y:25,emoji:"🎳",report:"מוזיקה חזקה וכמעט כל המסלולים מלאים"},
-  {id:2,name:"Sunset Rooftop",score:76,price:24,distance:1.4,mood:["chill","music"],people:"חי",x:62,y:61,emoji:"🌇",report:"אווירה טובה ושקיעה מטורפת"},
-  {id:3,name:"Pixel Arcade",score:91,price:15,distance:2.2,mood:["fun"],people:"מפוצץ",x:38,y:42,emoji:"🕹️",report:"טורניר קטן התחיל עכשיו"},
-  {id:4,name:"Street Bites",score:68,price:12,distance:.9,mood:["food","chill"],people:"בינוני",x:50,y:80,emoji:"🍔",report:"אין כמעט תור כרגע"},
-  {id:5,name:"Wave Café",score:52,price:10,distance:2.8,mood:["food","chill"],people:"רגוע",x:22,y:22,emoji:"☕",report:"שקט, יש הרבה שולחנות"},
-  {id:6,name:"Pulse Arena",score:83,price:30,distance:3.6,mood:["fun","music"],people:"עמוס",x:84,y:72,emoji:"⚡",report:"אירוע מתחיל בקרוב"}
-];
+
+let places = [];
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -53,19 +47,61 @@ async function loadNearbyPlaces(latitude, longitude) {
     const response = await fetch(url);
     const data = await response.json();
 
-    data.elements
-      .filter(place => place.tags && place.tags.name)
-      .slice(0, 25)
-      .forEach(place => {
-        const lat = place.lat || place.center?.lat;
-        const lon = place.lon || place.center?.lon;
+    const realPlaces = data.elements
+  .filter(place => place.tags && place.tags.name)
+  .slice(0, 25)
+  .map((place, index) => {
+    const lat = place.lat || place.center?.lat;
+    const lon = place.lon || place.center?.lon;
 
-        if (!lat || !lon) return;
+    if (!lat || !lon) return null;
 
-        L.marker([lat, lon])
-          .addTo(map)
-          .bindPopup(`<b>${place.tags.name}</b>`);
-      });
+    const type =
+      place.tags.amenity ||
+      place.tags.leisure ||
+      place.tags.tourism ||
+      "place";
+
+    let emoji = "📍";
+    let mood = ["fun"];
+
+    if (["restaurant", "cafe", "fast_food"].includes(type)) {
+      emoji = "🍽️";
+      mood = ["food"];
+    } else if (type === "cinema" || type === "theatre") {
+      emoji = "🎬";
+      mood = ["fun"];
+    } else if (type === "bowling_alley") {
+      emoji = "🎳";
+      mood = ["fun"];
+    } else if (type === "amusement_arcade") {
+      emoji = "🕹️";
+      mood = ["fun"];
+    } else if (type === "museum" || type === "attraction") {
+      emoji = "🏛️";
+      mood = ["chill"];
+    }
+
+    L.marker([lat, lon])
+      .addTo(map)
+      .bindPopup(`<b>${place.tags.name}</b>`);
+
+    return {
+      id: index + 1,
+      name: place.tags.name,
+      score: 60 + ((place.id || index) % 35),
+      price: "?",
+      distance: "?",
+      mood,
+      people: "לא ידוע",
+      emoji,
+      report: "מקום אמיתי מ-OpenStreetMap"
+    };
+  })
+  .filter(Boolean);
+
+places = realPlaces;
+renderPlaces();
 
   } catch (error) {
     console.error("Could not load nearby places:", error);
