@@ -34,7 +34,43 @@ let userMarker = null;
 function renderPins() {
   // כרגע לא מציגים את פיני הדמו הישנים על המפה החדשה
 }
+async function loadNearbyPlaces(latitude, longitude) {
+  const query = `
+    [out:json][timeout:20];
+    (
+      nwr(around:3000,${latitude},${longitude})["amenity"~"restaurant|cafe|fast_food|cinema|theatre"];
+      nwr(around:3000,${latitude},${longitude})["leisure"~"bowling_alley|amusement_arcade|sports_centre"];
+      nwr(around:3000,${latitude},${longitude})["tourism"~"attraction|museum"];
+    );
+    out center tags;
+  `;
 
+  try {
+    const url =
+      "https://overpass-api.de/api/interpreter?data=" +
+      encodeURIComponent(query);
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    data.elements
+      .filter(place => place.tags && place.tags.name)
+      .slice(0, 25)
+      .forEach(place => {
+        const lat = place.lat || place.center?.lat;
+        const lon = place.lon || place.center?.lon;
+
+        if (!lat || !lon) return;
+
+        L.marker([lat, lon])
+          .addTo(map)
+          .bindPopup(`<b>${place.tags.name}</b>`);
+      });
+
+  } catch (error) {
+    console.error("Could not load nearby places:", error);
+  }
+}
 function renderPlaces(){
   const sorted = [...places].sort((a,b)=>b.score-a.score);
   $("#placesGrid").innerHTML = sorted.map(p => `
@@ -155,6 +191,7 @@ if (userMarker) {
 }
 
 userMarker.openPopup();
+loadNearbyPlaces(latitude, longitude);
 
       localStorage.setItem(
         "vybe_location",
